@@ -23,7 +23,9 @@ do odpalenia frontendu:
 - odpalamy npm run start
 
 do zrobienia:
-- chcemy miec widok listy certyfikatow (czyli kursow jakie ukonczyl dany user) z mozliwoscia dodawania edycji usuwania (crud)
+- chcemy miec widok listy certyfikatow (czyli kursow jakie ukonczyl dany user) z mozliwoscia 
+dodawania edycji usuwania (crud)
 - certyfikat ma miec pola - nazwa (text), opis (textarea) i user(select)
-- bug: po zalogowaniu powinnismy wyladowac na stronie userow (obecnie pokazywana jest strona logowania z gornym menu)
+- bug: po zalogowaniu powinnismy wyladowac na stronie userow (obecnie pokazywana jest 
+strona logowania z gornym menu)
 - dodanie menu itema "Terms" ktory po kliknieciu otworzy modal z regulaminem (przy uzyciu redux)

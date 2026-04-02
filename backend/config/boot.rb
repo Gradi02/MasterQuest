@@ -11,7 +11,7 @@ Bootsnap.setup(
     cache_dir: 'tmp/cache',
     development_mode: env == 'development',
     load_path_cache: true,
-    autoload_paths_cache: true,
+    #autoload_paths_cache: true,
     compile_cache_iseq: false,
     compile_cache_yaml: true
 )
