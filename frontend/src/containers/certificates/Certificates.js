@@ -19,8 +19,8 @@ class Certificates extends Component {
             certificates => this.setState({certificates, page, sizePerPage}));
     }
 
-    delete(name) {
-        this.props.actions.deleteCertificate(name, () => {
+    delete(id) {
+        this.props.actions.deleteCertificate(id, () => {
             this.reload();
         });
     }
@@ -38,7 +38,7 @@ class Certificates extends Component {
                     </Col>
                     <Col xs={4} className="text-right">
                         <h4>
-                            <LinkContainer exact to={`/user`}>
+                            <LinkContainer exact to={`/certificate`}>
                                 <Button bsStyle={'success'}><Glyphicon
                                     glyph="plus"/> Add</Button>
                             </LinkContainer>
@@ -66,10 +66,22 @@ class Certificates extends Component {
                     }}
                 >
                     <TableHeaderColumn width="10" isKey dataField='id'>ID</TableHeaderColumn>
-                    <TableHeaderColumn width="35" dataField='email'>Name</TableHeaderColumn>
+                    <TableHeaderColumn width="35" dataField='name'>Name</TableHeaderColumn>
+                    <TableHeaderColumn width="35" dataField='description' dataFormat={(cell, row) => {
+                        const description = cell || '';
+                        return (
+                            <OverlayTrigger placement="top" overlay={
+                                <Tooltip id={`description-tooltip-${row.id}`}>
+                                    {description || 'No description'}
+                                </Tooltip>
+                            }>
+                                <span className="pointer">{description}</span>
+                            </OverlayTrigger>
+                        );
+                    }}>Description</TableHeaderColumn>
                     <TableHeaderColumn width="20" dataField='id' dataFormat={(cell, row) => {
                         return <div>
-                            <LinkContainer exact to={`/user/${row.id}`}>
+                            <LinkContainer exact to={`/certificate/${row.id}`}>
                                 <OverlayTrigger placement="top" overlay={
                                     <Tooltip id="tooltip">
                                         Edit
@@ -111,4 +123,4 @@ const mapDispatchToProps = dispatch => ({
 export default connect(
     undefined,
     mapDispatchToProps
-)(Users)
+)(Certificates)

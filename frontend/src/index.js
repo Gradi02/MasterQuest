@@ -12,6 +12,8 @@ import 'font-awesome/css/font-awesome.css';
 import {PersistGate} from 'redux-persist/es/integration/react';
 import Users from "./containers/users/Users";
 import User from "./containers/users/User";
+import Certificates from "./containers/certificates/Certificates";
+import Certificate from "./containers/certificates/Certificate";
 import history from "./history";
 import axios from "axios";
 
@@ -36,6 +38,8 @@ render(
                         )}/>
                         <Route path="/users" component={Users}/>
                         <Route path="/user/:id?" component={User}/>
+                        <Route path="/certificates" component={Certificates}/>
+                        <Route path="/certificate/:id?" component={Certificate}/>
                         <Route path="/login" component={LoginPage}/>
 
                     </AppTemplate>

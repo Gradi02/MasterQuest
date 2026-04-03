@@ -36,6 +36,11 @@ class AppTemplate extends Component {
                                         Users
                                     </MenuItem>
                                 </LinkContainer>
+                                <LinkContainer exact to="/certificates">
+                                    <MenuItem eventKey={1.2}>
+                                        Certificates
+                                    </MenuItem>
+                                </LinkContainer>
                             </NavDropdown>
                         </Nav>
                         <Nav pullRight className="vmiddle">

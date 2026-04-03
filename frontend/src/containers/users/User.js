@@ -43,7 +43,7 @@ class User extends Component {
         super(props, context);
 
         this.state = {
-            resource: {},
+            resource: {email: '', password: ''},
             validationErrors: {},
             previousUserName: '',
             passwordConfirm: ''
@@ -55,13 +55,16 @@ class User extends Component {
         if (id != null) {
             this.loadUser(id, organizer => this.setState({resource: organizer}));
         } else {
-            this.setState({resource: {}});
+            this.setState({resource: {email: '', password: ''}});
         }
     };
 
     loadUser(id) {
         this.props.actions.loadUser(id,
-            resource => this.setState({resource: resource, previousUserName: resource.email}));
+            resource => this.setState({
+                resource: {...resource, password: ''},
+                previousUserName: resource.email
+            }));
     };
 
     getValidationState(id) {
@@ -105,8 +108,7 @@ class User extends Component {
                                 <Col sm={10}>
                                     <FormControl
                                         type="email"
-                                        defaultValue={resource.id ? previousUserName : ' '}
-                                        value={resource.email}
+                                        value={resource.email || ''}
                                         placeholder="Enter text"
                                         onChange={this.handleNameChange}
                                     />
@@ -125,7 +127,7 @@ class User extends Component {
                                 <Col sm={10}>
                                     <FormControl
                                         type="password"
-                                        value={resource.password}
+                                        value={resource.password || ''}
                                         placeholder="Enter text"
                                         onChange={this.handlePasswordChange}
                                     />

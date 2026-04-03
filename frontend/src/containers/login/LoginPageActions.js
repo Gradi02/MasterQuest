@@ -11,9 +11,10 @@ export const login = (email, password) => async (dispatch, getState) => {
             data: {user: {email, password}},
         };
         const tokenResponse = await axios.request(config);
+        const authToken = tokenResponse.headers.authorization || tokenResponse.headers.Authorization;
         dispatch({
             type: LOGIN,
-            token: tokenResponse.headers.authorization
+            token: authToken
         });
         dispatch(push('/'));
     } catch (exception) {

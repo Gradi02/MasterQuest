@@ -4,37 +4,41 @@ import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
 import {Button, Col, ControlLabel, Form, FormControl, FormGroup, Glyphicon, Row} from "react-bootstrap";
 import * as actions from "./CertificatesApi";
+import * as userActions from "../users/UsersApi";
 
 class Certificate extends Component {
-
     handleNameChange = (e) => {
         const {resource} = this.state;
-        this.setState({resource: {...resource, email: e.target.value}});
+        this.setState({resource: {...resource, name: e.target.value}});
     };
-    handlePasswordChange = (e) => {
+    handleDescriptionChange = (e) => {
         const {resource} = this.state;
-        this.setState({resource: {...resource, password: e.target.value}});
+        this.setState({resource: {...resource, description: e.target.value}});
     };
-    handlePasswordConfirmChange = (e) => {
-        this.setState({passwordConfirm: e.target.value});
+    handleUserChange = (e) => {
+        const {resource} = this.state;
+        this.setState({resource: {...resource, user_id: e.target.value ? Number(e.target.value) : null}});
     };
-    saveUser = (e) => {
+
+    saveCertificate = (e) => {
         e.preventDefault();
-        const {resource, passwordConfirm} = this.state;
+        const {resource} = this.state;
         const validationErrors = {};
+
         if (Object.keys(resource).length > 0) {
-            if (!resource.email || resource.email.length < 5)
-                validationErrors.email = "invalid email";
-            if (!resource.password || resource.password.length < 6)
-                validationErrors.password = "invalid password";
-            if (passwordConfirm !== resource.password)
-                validationErrors.passwordConfirm = "passwords don't match";
+            if (!resource.name || resource.name.trim().length < 2) {
+                validationErrors.name = "invalid name";
+            }
+            if (!resource.user_id) {
+                validationErrors.user_id = "user is required";
+            }
         }
+
         if (Object.keys(validationErrors).length > 0) {
             this.setState({validationErrors});
         } else {
-            this.props.actions.saveUser(resource, () => {
-                this.context.router.history.push('/users');
+            this.props.actions.saveCertificate(resource, () => {
+                this.context.router.history.push('/certificates');
             });
         }
     };
@@ -44,50 +48,48 @@ class Certificate extends Component {
 
         this.state = {
             resource: {},
+            users: [],
             validationErrors: {},
-            previousUserName: '',
-            passwordConfirm: ''
+            previousCertificateName: ''
         }
     };
 
     componentDidMount() {
         const id = this.props.match.params.id;
+        this.props.userActions.loadUsers({page: 1, per_page: 1000}, users => this.setState({users}));
         if (id != null) {
-            this.loadUser(id, organizer => this.setState({resource: organizer}));
+            this.loadCertificate(id);
         } else {
             this.setState({resource: {}});
         }
     };
 
-    loadUser(id) {
-        this.props.actions.loadUser(id,
-            resource => this.setState({resource: resource, previousUserName: resource.email}));
+    loadCertificate(id) {
+        this.props.actions.loadCertificate(id,
+            resource => this.setState({resource: resource, previousCertificateName: resource.name}));
     };
 
     getValidationState(id) {
         const {validationErrors} = this.state;
-        if (validationErrors.email && id === 'email') {
+        if (validationErrors.name && id === 'name') {
             return 'error';
         }
-        if (validationErrors.password && id === 'password') {
-            return 'error';
-        }
-        if (validationErrors.passwordConfirm && id === 'confirmPassword') {
+        if (validationErrors.user_id && id === 'user_id') {
             return 'error';
         }
         return null;
     }
 
     render() {
-        const {resource, validationErrors, previousUserName, passwordConfirm} = this.state;
+        const {resource, users, validationErrors, previousCertificateName} = this.state;
         return (
             <div>
                 {resource && <Row className="vertical-middle breadcrumbs">
                     <Col xs={8}>
                         <h5>
                             <Glyphicon
-                                glyph="cog"/> Admin &gt; Users &gt; {resource.id ?
-                                <span><b>{previousUserName}</b> - edit</span> :
+                                glyph="cog"/> Admin &gt; Certificates &gt; {resource.id ?
+                                <span><b>{previousCertificateName}</b> - edit</span> :
                                 <span>New</span>}
                         </h5>
                     </Col>
@@ -96,62 +98,62 @@ class Certificate extends Component {
                 {resource &&
                 <Row id='form'>
                     <Col xs={12} md={6}>
-                        <Form horizontal onSubmit={this.saveUser}>
+                        <Form horizontal onSubmit={this.saveCertificate}>
                             <FormGroup
-                                controlId="email"
-                                validationState={this.getValidationState('email')}
+                                controlId="name"
+                                validationState={this.getValidationState('name')}
                             >
-                                <Col componentClass={ControlLabel} sm={2}>Email</Col>
+                                <Col componentClass={ControlLabel} sm={2}>Name</Col>
                                 <Col sm={10}>
                                     <FormControl
-                                        type="email"
-                                        defaultValue={resource.id ? previousUserName : ' '}
-                                        value={resource.email}
+                                        type="text"
+                                        value={resource.name || ''}
                                         placeholder="Enter text"
                                         onChange={this.handleNameChange}
                                     />
                                     {
-                                        Object.keys(validationErrors).length > 0 && validationErrors.email &&
-                                        <ControlLabel>{validationErrors.email}</ControlLabel>
+                                        Object.keys(validationErrors).length > 0 && validationErrors.name &&
+                                        <ControlLabel>{validationErrors.name}</ControlLabel>
                                     }
                                 </Col>
                                 <FormControl.Feedback/>
                             </FormGroup>
                             <FormGroup
-                                controlId="password"
-                                validationState={this.getValidationState('password')}
+                                controlId="description"
                             >
-                                <Col componentClass={ControlLabel} sm={2}>Password</Col>
+                                <Col componentClass={ControlLabel} sm={2}>Description</Col>
                                 <Col sm={10}>
                                     <FormControl
-                                        type="password"
-                                        value={resource.password}
+                                        componentClass="textarea"
+                                        value={resource.description || ''}
                                         placeholder="Enter text"
-                                        onChange={this.handlePasswordChange}
+                                        onChange={this.handleDescriptionChange}
+                                        rows={4}
                                     />
-                                    {
-                                        Object.keys(validationErrors).length > 0 && validationErrors.password &&
-                                        <ControlLabel>{validationErrors.password}</ControlLabel>
-                                    }
                                 </Col>
                                 <FormControl.Feedback/>
                             </FormGroup>
                             <FormGroup
-                                controlId="confirmPassword"
-                                validationState={this.getValidationState('confirmPassword')}
+                                controlId="user_id"
+                                validationState={this.getValidationState('user_id')}
                             >
-                                <Col componentClass={ControlLabel}
-                                     sm={2}>Confirm password</Col>
+                                <Col componentClass={ControlLabel} sm={2}>User</Col>
                                 <Col sm={10}>
                                     <FormControl
-                                        type="password"
-                                        value={passwordConfirm}
-                                        placeholder="Enter text"
-                                        onChange={this.handlePasswordConfirmChange}
-                                    />
+                                        componentClass="select"
+                                        value={resource.user_id || ''}
+                                        onChange={this.handleUserChange}
+                                    >
+                                        <option value="">Select user</option>
+                                        {users.map(user => (
+                                            <option key={user.id} value={user.id}>
+                                                {user.email}
+                                            </option>
+                                        ))}
+                                    </FormControl>
                                     {
-                                        Object.keys(validationErrors).length > 0 && validationErrors.passwordConfirm &&
-                                        <ControlLabel>{validationErrors.passwordConfirm}</ControlLabel>
+                                        Object.keys(validationErrors).length > 0 && validationErrors.user_id &&
+                                        <ControlLabel>{validationErrors.user_id}</ControlLabel>
                                     }
                                 </Col>
                                 <FormControl.Feedback/>
@@ -160,7 +162,7 @@ class Certificate extends Component {
                                 <Button type="submit" bsStyle={'success'}>Save</Button>
                                 <Button
                                     bsStyle={'warning'}
-                                    onClick={() => this.context.router.history.push(`/users`)}
+                                    onClick={() => this.context.router.history.push(`/certificates`)}
                                 >
                                     Cancel
                                 </Button>
@@ -175,7 +177,7 @@ class Certificate extends Component {
     }
 }
 
-User.contextTypes = {
+Certificate.contextTypes = {
     router: PropTypes.object
 };
 
@@ -183,10 +185,13 @@ User.contextTypes = {
 const mapDispatchToProps = dispatch => ({
     actions: bindActionCreators(
         actions,
+        dispatch),
+    userActions: bindActionCreators(
+        userActions,
         dispatch)
 });
 
 export default connect(
     undefined,
     mapDispatchToProps
-)(User)
+)(Certificate)

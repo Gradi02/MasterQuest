@@ -1,49 +1,51 @@
 import axios from "axios";
 
+const authHeader = (token) => {
+    if (!token) return {};
+    return {Authorization: token.startsWith('Bearer ') ? token : `Bearer ${token}`};
+};
+
 export var loadCertificates = (params, callback) => async (dispatch, getState) => {
+    const token = getState().appState.token;
     var config = {
         url: '/certificates',
         params,
-        headers: {authorization: getState().appState.token}
+        headers: authHeader(token)
     };
     var result = await axios.request(config);
     callback(result.data);
 };
 
-export var loadCertificate = (name, callback) => async (dispatch, getState) => {
+export var loadCertificate = (id, callback) => async (dispatch, getState) => {
+    const token = getState().appState.token;
     var config = {
-        url: `/certificates/${name}`,
-        data: {
-            certificate: {
-                name,
-                description,
-                user_id
-            }
-        },
-        headers: {authorization: getState().appState.token}
+        url: `/certificates/${id}`,
+        headers: authHeader(token)
     };
     var result = await axios.request(config);
     callback(result.data);
 };
 
 export var saveCertificate = (resource, callback) => async (dispatch, getState) => {
+    const token = getState().appState.token;
     var config = {
-        url: resource.name ? `/certificates/${resource.name}` : '/certificates',
-        method: resource.name ? 'PUT' : 'POST',
+        url: resource.id ? `/certificates/${resource.id}` : '/certificates',
+        method: resource.id ? 'PUT' : 'POST',
         data: {
             certificate: resource
         },
-        headers: {authorization: getState().appState.token}
+        headers: authHeader(token)
     };
     var result = await axios.request(config);
     callback(result.data);
 };
 
-export var deleteCertificate = (name, callback) => async (dispatch, getState) => {
+export var deleteCertificate = (id, callback) => async (dispatch, getState) => {
+    const token = getState().appState.token;
     var config = {
-        url: `/certificates/${name}`,
+        url: `/certificates/${id}`,
         method: 'DELETE',
-        headers: {authorization: getState().appState.token}
+        headers: authHeader(token)
     };
     await axios.request(config);
     callback();
