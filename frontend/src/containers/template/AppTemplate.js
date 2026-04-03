@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import {Glyphicon, Grid, MenuItem, Nav, Navbar, NavDropdown} from "react-bootstrap";
+import {Button, Glyphicon, Grid, MenuItem, Modal, Nav, Navbar, NavDropdown, NavItem} from "react-bootstrap";
 import {LinkContainer} from "react-router-bootstrap";
 import {connect} from 'react-redux';
 import * as actions from './AppTemplateActions'
@@ -10,9 +10,8 @@ import 'material-design-icons-iconfont/dist/material-design-icons.scss';
 import MDSpinner from "react-md-spinner";
 
 class AppTemplate extends Component {
-
     render() {
-        const {authenticated, loading} = this.props;
+        const {authenticated, loading, showTermsModal} = this.props;
         return (
             <div>
                 {authenticated && <Navbar>
@@ -42,6 +41,9 @@ class AppTemplate extends Component {
                                     </MenuItem>
                                 </LinkContainer>
                             </NavDropdown>
+                            <NavItem onClick={this.props.actions.showTermsModal}>
+                                Terms
+                            </NavItem>
                         </Nav>
                         <Nav pullRight className="vmiddle">
                             {loading && <span className="pull-left">
@@ -58,6 +60,31 @@ class AppTemplate extends Component {
                     </Navbar.Collapse>
                 </Navbar>
                 }
+                <Modal show={showTermsModal} onHide={this.props.actions.hideTermsModal}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Terms and Statute</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <h4>Statute</h4>
+                        <p>
+                            By using this application, you agree to use it only for legitimate administrative
+                            operations related to user and certificate management.
+                        </p>
+                        <p>
+                            Personal data must be processed with care. Do not share account credentials or
+                            authorization tokens. Every change should be traceable and made by authorized staff.
+                        </p>
+                        <p>
+                            Certificates should represent completed courses accurately. Creating false records,
+                            modifying records without permission, or deleting data without business reason is prohibited.
+                        </p>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button onClick={this.props.actions.hideTermsModal} bsStyle="primary">
+                            Close
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
                 <Grid>
                     {this.props.children}
                 </Grid>
@@ -71,7 +98,8 @@ const mapStateToProps = ({appState}) => ({
     alerts: appState.alerts,
     loading: appState.loading,
     profile: appState.profile,
-    authenticated: appState.authenticated
+    authenticated: appState.authenticated,
+    showTermsModal: appState.showTermsModal
 });
 
 const mapDispatchToProps = dispatch => ({

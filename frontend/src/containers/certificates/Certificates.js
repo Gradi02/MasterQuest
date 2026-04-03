@@ -7,7 +7,12 @@ import * as actions from "./CertificatesApi";
 import {BootstrapTable, TableHeaderColumn} from "react-bootstrap-table";
 
 class Certificates extends Component {
-    state = {certificates: null, page: 1, sizePerPage: 10};
+    state = {
+        certificates: null,
+        page: 1,
+        sizePerPage: 10,
+        descriptionTooltip: null
+    };
 
     componentDidMount() {
         this.reload();
@@ -25,9 +30,37 @@ class Certificates extends Component {
         });
     }
 
+    showDescriptionTooltip = (description, event) => {
+        this.setState({
+            descriptionTooltip: {
+                text: description || 'No description',
+                x: event.clientX + 12,
+                y: event.clientY + 12
+            }
+        });
+    };
+
+    moveDescriptionTooltip = (event) => {
+        const {descriptionTooltip} = this.state;
+        if (!descriptionTooltip) {
+            return;
+        }
+        this.setState({
+            descriptionTooltip: {
+                ...descriptionTooltip,
+                x: event.clientX + 12,
+                y: event.clientY + 12
+            }
+        });
+    };
+
+    hideDescriptionTooltip = () => {
+        this.setState({descriptionTooltip: null});
+    };
+
 
     render() {
-        const {certificates, page, sizePerPage} = this.state;
+        const {certificates, page, sizePerPage, descriptionTooltip} = this.state;
         return (<div>
                 <Row className="vertical-middle breadcrumbs">
                     <Col xs={8}>
@@ -46,6 +79,9 @@ class Certificates extends Component {
                     </Col>
                 </Row>
                 {certificates &&
+                <div ref={node => {
+                    this.tableContainer = node;
+                }}>
                 <BootstrapTable
                     data={certificates}
                     fetchInfo={{dataTotalSize: certificates.length}}
@@ -66,48 +102,52 @@ class Certificates extends Component {
                     }}
                 >
                     <TableHeaderColumn width="10" isKey dataField='id'>ID</TableHeaderColumn>
-                    <TableHeaderColumn width="35" dataField='name'>Name</TableHeaderColumn>
-                    <TableHeaderColumn width="35" dataField='description' dataFormat={(cell, row) => {
-                        const description = cell || '';
+                    <TableHeaderColumn width="30" dataField='name'>Name</TableHeaderColumn>
+                    <TableHeaderColumn width="50" dataField='description' dataFormat={(cell, row) => {
+                        const descText = cell || 'No description';
                         return (
-                            <OverlayTrigger placement="top" overlay={
-                                <Tooltip id={`description-tooltip-${row.id}`}>
-                                    {description || 'No description'}
-                                </Tooltip>
-                            }>
-                                <span className="pointer">{description}</span>
+                            <OverlayTrigger 
+                                placement="bottom" 
+                                overlay={<Tooltip id={`desc-tooltip-${row.id}`}>{descText}</Tooltip>}
+                            >
+                                <span 
+                                    className="pointer" 
+                                    style={{ display: 'inline-block', width: '100%' }}
+                                >
+                                    {descText}
+                                </span>
                             </OverlayTrigger>
                         );
                     }}>Description</TableHeaderColumn>
-                    <TableHeaderColumn width="20" dataField='id' dataFormat={(cell, row) => {
+                    <TableHeaderColumn width="10" dataField='id' dataFormat={(cell, row) => {
                         return <div>
                             <LinkContainer exact to={`/certificate/${row.id}`}>
-                                <OverlayTrigger placement="top" overlay={
-                                    <Tooltip id="tooltip">
-                                        Edit
-                                    </Tooltip>
-                                }>
-                                                    <span className="text-success pointer"> <i
-                                                        className="fas fa-edit"/></span>
+                                <OverlayTrigger 
+                                    placement="top" 
+                                    overlay={<Tooltip id={`edit-tooltip-${row.id}`}>Edit</Tooltip>}
+                                >
+                                    <span className="text-success pointer" style={{ display: 'inline-block' }}>
+                                        <i className="fas fa-edit" />
+                                    </span>
                                 </OverlayTrigger>
                             </LinkContainer>
                             <span> </span>
 
                             <LinkContainer to={`/`} onClick={() => this.delete(row.id)}>
-                                <OverlayTrigger placement="top" overlay={
-                                    <Tooltip id="tooltip">
-                                        Delete
-                                    </Tooltip>
-                                }>
-                                                    <span className="text-danger pointer"
-                                                          onClick={() => this.delete(row.id)}> <i
-                                                        className="fas fa-trash-alt"/></span>
+                                <OverlayTrigger 
+                                    placement="top" 
+                                    overlay={<Tooltip id={`del-tooltip-${row.id}`}>Delete</Tooltip>}
+                                >
+                                    <span className="text-danger pointer" style={{ display: 'inline-block' }}>
+                                        <i className="fas fa-trash-alt" />
+                                    </span>
                                 </OverlayTrigger>
                             </LinkContainer>
                         </div>
                     }}>Actions
                     </TableHeaderColumn>
                 </BootstrapTable>
+                </div>
                 }
             </div>
         );
