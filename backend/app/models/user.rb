@@ -30,4 +30,6 @@ class User < ApplicationRecord
   def roles
     []
   end
+
+  has_many :certificates
 end

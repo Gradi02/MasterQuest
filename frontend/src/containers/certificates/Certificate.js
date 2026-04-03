@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
 import {Button, Col, ControlLabel, Form, FormControl, FormGroup, Glyphicon, Row} from "react-bootstrap";
-import * as actions from "./UsersApi";
+import * as actions from "./CertificatesApi";
 
-class User extends Component {
+class Certificate extends Component {
 
     handleNameChange = (e) => {
         const {resource} = this.state;
